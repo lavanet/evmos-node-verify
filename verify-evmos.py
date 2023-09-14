@@ -1,6 +1,4 @@
 import argparse
-import pprint
-import sys
 from urllib.request import urlopen, Request
 import json
 
@@ -224,8 +222,7 @@ def test_web3_api_set(base_url, test_values):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        prog='Lava Evmos providers node verification')
+    parser = argparse.ArgumentParser()
     parser.add_argument('rest', help="evmos node rest endpoint")
     parser.add_argument('tendermintrpc', help="evmos node tendermint-rpc endpoint")
     parser.add_argument('ethjsonrpc', help="evmos node json-rpc endpoint")
