@@ -74,12 +74,12 @@ def test_rest_general_info(base_url, test_values):
             return
         info = response.read().decode()
         info = json.loads(info)
-        if info["default_node_info"]['network'] != test_values['chain-id']:
-            print(f"ERROR: Chain ID verification failed: expected: {test_values['network'].lower()}, got: {info['network'].lower()}")
+        if info['default_node_info']['network'] != test_values['chain-id']:
+            print(f"ERROR: Chain ID verification failed: expected: {test_values['chain-id'].lower()}, got: {info['default_node_info']['network'].lower()}")
         else:
             print("PASSED Chain ID verification")
         if info["default_node_info"]['other']['tx_index'].lower() != test_values['tx-indexing'].lower():
-            print(f"ERROR: TX indexing verification failed: expected: {test_values['tx-indexing']}, got: {info['other']['tx_index']}")
+            print(f"ERROR: TX indexing verification failed: expected: {test_values['tx-indexing']}, got: {info['default_node_info']['other']['tx_index']}")
         else:
             print("PASSED TX indexing verification")
         if not info['application_version']["version"].lower().startswith(test_values['protocol-version'].lower()):
@@ -100,11 +100,11 @@ def test_tendermint_rpc_info(base_url, test_values):
         node_info = status['node_info']
 
         if node_info['network'] != test_values['chain-id']:
-            print(f"ERROR: Chain ID verification failed: expected: {test_values['network'].lower()}, got: {status['node_indo']['network'].lower()}")
+            print(f"ERROR: Chain ID verification failed: expected: {test_values['chain-id'].lower()}, got: {status['node_info']['network'].lower()}")
         else:
             print("PASSED Chain ID verification")
         if node_info['other']['tx_index'].lower() != test_values['tx-indexing'].lower():
-            print(f"ERROR: TX indexing verification failed: expected: {test_values['tx-indexing']}, got: {status['node_indo']['other']['tx_index']}")
+            print(f"ERROR: TX indexing verification failed: expected: {test_values['tx-indexing']}, got: {status['node_info']['other']['tx_index']}")
         else:
             print("PASSED TX indexing verification")
 
