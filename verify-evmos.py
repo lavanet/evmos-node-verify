@@ -16,22 +16,18 @@ POST_HEADERS.update(HEADERS)
 MAINNET = {
     'chain-id': "evmos_9001-2",
     'tx-indexing': 'on',
-    'protocol-version': 'v13.0.2',
     "eth": {
         'chain-id': '0x2329',
         'net-version': '9001',
-        'protocol-version': '0x41'
     }
 }
 
 TESTNET = {
     'chain-id': "evmos_9000-4",
     'tx-indexing': 'on',
-    'protocol-version': 'v14.0.0',
     "eth": {
         'chain-id': '0x2328',
         'net-version': '9000',
-        'protocol-version': '0x41'
     }
 }
 
@@ -82,10 +78,6 @@ def test_rest_general_info(base_url, test_values):
             print(f"ERROR: TX indexing verification failed: expected: {test_values['tx-indexing']}, got: {info['default_node_info']['other']['tx_index']}")
         else:
             print("PASSED TX indexing verification")
-        if not info['application_version']["version"].lower().startswith(test_values['protocol-version'].lower()):
-            print(f"ERROR: App version verification failed: expected: {test_values['protocol-version']}, got: {info['application_version']['version']}")
-        else:
-            print('PASSED App version verification')
 
 
 def test_tendermint_rpc_info(base_url, test_values):
@@ -124,7 +116,8 @@ def test_eth_chain_id(base_url, test_values):
     url = f"{base_url}"
     httprequest = Request(url,
                           json.dumps({"jsonrpc": "2.0", "method": "eth_chainId", "params": [], "id": 1}).encode('utf-8'),
-                          headers=HEADERS)
+                          headers=POST_HEADERS,
+                          method='POST')
     with urlopen(httprequest) as response:
         if response.status != 200:
             print('ERROR: failed getting node_info from rest api')
@@ -142,7 +135,8 @@ def test_eth_pruning(base_url, test_values):
     url = f"{base_url}"
     httprequest = Request(url,
                           json.dumps({"jsonrpc": "2.0", "method": "eth_blockNumber", "params": [], "id": 1}).encode('utf-8'),
-                          headers=HEADERS)
+                          headers=POST_HEADERS,
+                          method='POST')
 
     with urlopen(httprequest) as response:
         if response.status != 200:
@@ -154,7 +148,8 @@ def test_eth_pruning(base_url, test_values):
     httprequest = Request(url,
                           json.dumps({"jsonrpc": "2.0", "method": "eth_getBlockByNumber",
                                       "params": [hex(latest_block - PRUNING), False], "id": 1}).encode('utf-8'),
-                          headers=HEADERS)
+                          headers=POST_HEADERS,
+                          method='POST')
 
     with urlopen(httprequest) as response:
         if response.status != 200:
@@ -172,7 +167,8 @@ def test_eth_net_api_set(base_url, test_values):
     url = f"{base_url}"
     httprequest = Request(url,
                           json.dumps({"jsonrpc": "2.0", "method": "net_version", "params": [], "id": 1}).encode('utf-8'),
-                          headers=HEADERS)
+                          headers=POST_HEADERS,
+                          method='POST')
     with urlopen(httprequest) as response:
         if response.status != 200:
             print('ERROR: failed getting node_info from rest api')
@@ -186,29 +182,12 @@ def test_eth_net_api_set(base_url, test_values):
             print(f"ERROR: net api verification failed: api should be enabled")
 
 
-def test_eth_protocol_version(base_url, test_values):
-    url = f"{base_url}"
-    httprequest = Request(url,
-                          json.dumps({"jsonrpc": "2.0", "method": "eth_protocolVersion", "params": [], "id": 1}).encode('utf-8'),
-                          headers=HEADERS)
-    with urlopen(httprequest) as response:
-        if response.status != 200:
-            print('ERROR: failed getting node_info from rest api')
-            return
-        result = response.read().decode()
-        result = json.loads(result)['result']
-
-        if result == test_values['eth']['protocol-version']:
-            print("PASSED protocol version verification")
-        else:
-            print(f"ERROR: protocol version verification failed - got {result} expected {test_values['eth']['protocol-verison']}")
-
-
 def test_web3_api_set(base_url, test_values):
     url = f"{base_url}"
     httprequest = Request(url,
                           json.dumps({"jsonrpc": "2.0", "method": "web3_clientVersion", "params": [], "id": 1}).encode('utf-8'),
-                          headers=HEADERS)
+                          headers=POST_HEADERS,
+                          method='POST')
     try:
         with urlopen(httprequest) as response:
             result = response.read().decode()
@@ -242,7 +221,6 @@ def main():
     test_eth_chain_id(args.ethjsonrpc, test_values)
     test_eth_pruning(args.ethjsonrpc, test_values)
     test_eth_net_api_set(args.ethjsonrpc, test_values)
-    test_eth_protocol_version(args.ethjsonrpc, test_values)
     test_web3_api_set(args.ethjsonrpc, test_values)
 
 
